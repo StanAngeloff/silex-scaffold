@@ -1,0 +1,43 @@
+{
+  "name": "silex-scaffold",
+  "description": "A Silex scaffolding library which can be used to bootstrap applications.",
+  "version": "0.0.1-dev",
+  "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "Stan Angeloff",
+      "email": "stanimir@angeloff.name",
+      "homepage": "http://blog.angeloff.name",
+      "role": "Author"
+    }
+  ],
+  "require": {
+    "php": ">=5.4",
+
+    "ext-curl": "*",
+
+    "doctrine/dbal": "2.4.*@dev",
+    "guzzle/guzzle": "3.7.*@dev",
+    "igorw/config-service-provider": "1.2.*@dev",
+    "meenie/munee": "dev-master",
+    "monolog/monolog": "1.6.*@dev",
+    "mustache/silex-provider": "dev-master",
+    "silex/silex": "1.1.*@dev",
+    "symfony/config": "2.4.*@dev",
+    "symfony/finder": "2.4.*@dev",
+    "symfony/form": "2.4.*@dev",
+    "symfony/property-access": "2.4.*@dev",
+    "symfony/security": "2.4.*@dev",
+    "symfony/translation": "2.4.*@dev",
+    "symfony/yaml": "2.4.*@dev"
+  },
+  "autoload": {
+    "psr-0": {
+      "Silex\\Scaffold\\": "src/"
+    }
+  },
+  "config": {
+    "vendor-dir": "vendor/php",
+    "bin-dir": "bin"
+  }
+}

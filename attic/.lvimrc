@@ -1,0 +1,17 @@
+" Set up Syntastic to lint files on save.
+let g:syntastic_mode_map={ 'mode': 'active', 'active_filetypes': ['javascript', 'json', 'php'], 'passive_filetypes': [] }
+
+let g:syntastic_javascript_checkers=['jshint']
+let g:syntastic_javascript_jshint_conf='src/MaxPipe/Bundle/MaxHireSegmentBundle/Resources/.jshintrc'
+
+let g:syntastic_json_checkers=['jsonlint']
+
+let g:syntastic_php_checkers=['php', 'phpcs', 'phpmd']
+let g:syntastic_php_phpcs_args='--report=csv --encoding=utf-8 --standard=PSR2'
+let g:syntastic_php_phpmd_post_args='text codesize,design,naming,unusedcode'
+
+" Reload this file on save.
+augroup reloadLocalConfiguration
+  au!
+  au BufWritePost .lvimrc source %
+augroup END

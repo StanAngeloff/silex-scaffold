@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+# {{{ Ubuntu utilities
+
+<%= import 'shell-scripts/ubuntu.sh' %>
+<%= import 'shell-scripts/ubuntu-extras.sh' %>
+<%= import 'shell-scripts/ubuntu-postgres.sh' %>
+
+# }}}
+
+# {{{ Configuration
+
+vagrant_user='vagrant'
+
+project_path="/${vagrant_user}"
+
+# }}}
+
+# {{{ DNS
+
+# Use Google Public DNS for resolving domain names.
+# The default is host-only DNS which may not be installed.
+nameservers-local-purge
+nameservers-append '8.8.8.8'
+nameservers-append '8.8.4.4'
+
+# }}}
+
+# {{{ Aptitute
+
+# {{{ PHP
+
+apt-packages-ppa 'ondrej/php5'
+
+# }}}
+
+# {{{ Nginx
+
+apt-packages-ppa 'nginx/stable'
+
+# }}}
+
+# Use a local Ubuntu mirror, results in faster downloads.
+apt-mirror-pick 'uk'
+
+# Update packages cache.
+apt-packages-update
+
+# }}}
+
+# {{{ Prerequisites
+
+# Install at least one Ubuntu locale.
+apt-packages-install language-pack-en
+
+# }}}
+
+# {{{ PHP
+
+apt-packages-install php5-cli php5-fpm
+
+# {{{ Settings
+
+php-settings-update 'date.timezone' 'Europe/London'
+php-settings-update 'display_errors' 'On'
+
+# }}}
+
+# }}}
+
+# {{{ Nginx
+
+apt-packages-install nginx
+
+# Replace the default Nginx site.
+EXTRA="$( cat <<'EOD'
+<%= import 'extra/etc/nginx/sites-available/vagrant.fragment' %>
+EOD
+)" \
+PHP="$( which php5-fpm )" \
+nginx-sites-create "$vagrant_user" "${project_path}/src"
+
+nginx-sites-disable 'default'
+nginx-sites-enable "$vagrant_user"
+
+# }}}
+
+# {{{ Restarting Services
+
+php-fpm-restart
+nginx-restart
+
+# }}}
