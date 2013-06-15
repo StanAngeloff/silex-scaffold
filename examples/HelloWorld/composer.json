@@ -1,0 +1,24 @@
+{
+  "name": "silex-scaffold-examples-helloworld",
+  "description": "A Silex scaffolding example application.",
+  "version": "0.0.1-dev",
+  "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "Stan Angeloff",
+      "email": "stanimir@angeloff.name",
+      "homepage": "http://blog.angeloff.name",
+      "role": "Author"
+    }
+  ],
+  "autoload": {
+    "psr-0": {
+      "Silex\\Scaffold\\": "../../src/"
+    },
+    "classmap": [
+      "app/",
+      "src/",
+      "../../vendor/php/"
+    ]
+  }
+}

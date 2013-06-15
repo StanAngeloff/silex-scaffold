@@ -90,6 +90,12 @@ fi
 log-operation 'php' 'install' 'composer.json'
 ( cd "$project_path" && COMPOSER_PROCESS_TIMEOUT=3600 php "$composer_binary" install --dev --prefer-source )
 
+# Install Composer/PHP dependencies from examples.
+for composer_file in $( find "${project_path}/examples" -type f -name 'composer.json' ); do
+  log-operation 'php' 'install' "${composer_file:${#project_path}}"
+  ( cd "$( dirname "$composer_file" )" && COMPOSER_PROCESS_TIMEOUT=3600 php "$composer_binary" install )
+done
+
 # }}}
 
 # }}}
@@ -104,7 +110,7 @@ EXTRA="$( cat <<'EOD'
 EOD
 )" \
 PHP="$( which php5-fpm )" \
-nginx-sites-create "$vagrant_user" "${project_path}/src"
+nginx-sites-create "$vagrant_user" "${project_path}/examples/HelloWorld/web/"
 
 nginx-sites-disable 'default'
 nginx-sites-enable "$vagrant_user"
