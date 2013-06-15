@@ -14,6 +14,12 @@ vagrant_user='vagrant'
 
 project_path="/${vagrant_user}"
 
+# {{{ PHP
+
+composer_binary="${project_path}/bin/composer.phar"
+
+# }}}
+
 # }}}
 
 # {{{ DNS
@@ -26,7 +32,7 @@ nameservers-append '8.8.4.4'
 
 # }}}
 
-# {{{ Aptitute
+# {{{ Aptitute/Packages
 
 # {{{ PHP
 
@@ -53,16 +59,36 @@ apt-packages-update
 # Install at least one Ubuntu locale.
 apt-packages-install language-pack-en
 
+# Git is required by Composer to install packages from source.
+apt-packages-install git-core
+
 # }}}
 
 # {{{ PHP
 
-apt-packages-install php5-cli php5-fpm
+# cURL is required by 'guzzle/guzzle'.
+apt-packages-install php5-cli php5-fpm php5-curl
 
 # {{{ Settings
 
 php-settings-update 'date.timezone' 'Europe/London'
 php-settings-update 'display_errors' 'On'
+
+# }}}
+
+# {{{ Composer
+
+# Install (or update) Composer locally to project bin/
+log-operation 'php' 'install' 'composer.phar'
+if [ -f "$composer_binary" ]; then
+  php "$composer_binary" self-update
+else
+  package-uri-download 'https://getcomposer.org/installer' | php -- --install-dir="$( dirname "$composer_binary" )"
+fi
+
+# Install Composer/PHP dependencies.
+log-operation 'php' 'install' 'composer.json'
+( cd "$project_path" && COMPOSER_PROCESS_TIMEOUT=3600 php "$composer_binary" install --dev --prefer-source )
 
 # }}}
 
