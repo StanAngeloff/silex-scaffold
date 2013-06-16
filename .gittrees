@@ -1,0 +1,7 @@
+[subtree "scripts/vagrant/shell-scripts"]
+  url = git://github.com/StanAngeloff/vagrant-shell-scripts.git
+  branch = master
+  path = /
+
+
+# vim: ft=gitconfig

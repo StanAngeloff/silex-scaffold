@@ -112,4 +112,64 @@ clean:
 	@git clean -dfx
 
 
+# Update a local repository path from a remote repository.
+#
+# Parameters:
+#   - The subtree name, used to identify branches during the operation.
+#   - The remote repository URI, e.g., 'git://github.com/user/repository.git'.
+#   - The remote repository branch, e.g., 'master'.
+#   - The local repository path.
+#   - Optional remote repository path (default: '/').
+define update-git-subtree
+
+update-$(1):
+	@$$(call required-dependency,git,Git,git-core)
+	@$$(eval remote_name := 'update/$(1)')
+ifeq ($(5),)
+	@$$(eval merge_branch := '$$(remote_name)/$(3)')
+else
+	@$$(eval merge_branch := 'update/split/$(1)/$(5)')
+endif
+	@$$(eval origin_branch := $$(shell git rev-parse --abbrev-ref HEAD))
+	@/bin/echo -n 'Checking if the Git remote "$$(remote_name)" exists... '
+	@if git remote -v | grep '$$(remote_name)' 1>/dev/null 2>&1; then \
+		echo 'fetching changes...' ; \
+		git fetch '$$(remote_name)' ; \
+	else \
+		echo 'adding with changes...' ; \
+		git remote add -f -t '$(3)' '$$(remote_name)' '$(2)' ; \
+	fi
+	@if ! git diff-files --quiet; then \
+		echo 'Stashing working copy changes before proceeding...' ; \
+		git stash save -q 'before: update-$(1)' ; \
+	fi
+	@if [ -n '$(5)' ]; then \
+		echo 'Checking out remote branch "$(3)"...' ; \
+		git checkout -q '$$(remote_name)/$(3)' ; \
+		echo 'Splitting "$(5)"...' ; \
+		git subtree split -P '$(5)' --annotate='(split: $(1)) ' -b '$$(merge_branch)' ; \
+		echo 'Checking out previous branch "$$(origin_branch)"...' ; \
+		git checkout -q '$$(origin_branch)' ; \
+	fi
+	@if [ -d '$(4)' ]; then \
+		echo 'Updating subtree in "$(4)"...' ; \
+		git subtree merge --prefix='$(4)' --squash '$$(merge_branch)' ; \
+	else \
+		echo 'Adding subtree in "$(4)"...' ; \
+		git subtree add --prefix='$(4)' --squash '$$(merge_branch)' ; \
+	fi
+	@echo 'Cleaning up...'
+	@if [ -n '$(5)' ]; then \
+		git branch -D '$$(merge_branch)' ; \
+	fi
+	@git remote rm '$$(remote_name)'
+	@if git stash list | grep 'before: update-$(1)' 1>/dev/null 2>&1; then \
+		echo 'Applying stashed changes...' ; \
+		git stash pop -q "$$$$( git stash list | grep 'before: update-$(1)' | cut -d':' -f1 )" ; \
+	fi
+endef
+
+$(eval $(call update-git-subtree,vagrant-shell-scripts,git://github.com/StanAngeloff/vagrant-shell-scripts.git,master,scripts/vagrant/shell-scripts))
+
+
 # vim: ts=2 sw=2 noet
