@@ -1,4 +1,5 @@
 /.bundle/
+/.phpunit/
 /.vagrant
 /bin/
 /vendor/php/

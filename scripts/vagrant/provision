@@ -69,10 +69,23 @@ apt-packages-install git-core
 # cURL is required by 'guzzle/guzzle'.
 apt-packages-install php5-cli php5-fpm php5-curl
 
+# {{{ Extensions
+
+php-pecl-install 'xdebug@2.2.3'
+
+# }}}
+
 # {{{ Settings
 
 php-settings-update 'date.timezone' 'Europe/London'
 php-settings-update 'display_errors' 'On'
+
+# {{{ Extensions
+
+php-settings-update 'xdebug.profiler_enable' 'Off'
+php-settings-update 'xdebug.profiler_enable_trigger' 'On'
+
+# }}}
 
 # }}}
 

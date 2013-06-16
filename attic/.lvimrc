@@ -15,6 +15,28 @@ let g:ctrlp_custom_ignore = {
   \ 'dir': '[\/]\(\.\(git\|hg\|svn\|sass-cache\)\|\(vendor[\/]\(ruby\)\)\)$',
   \ }
 
+" Run a command on <F5> expanding any '%:' Vim markers.
+if ! exists('g:runCommand')
+  " The default command is to run PHPUnit.
+  let g:runCommand='cd /vagrant && /vagrant/bin/phpunit --coverage-html ./.phpunit'
+endif
+if  ! exists('g:runCommandTarget')
+  " The tmux target where the command will be run.
+  " Be careful not to execute it in the same panel as Vim.
+  let g:runCommandTarget='default.2'
+endif
+
+function! s:RunCommand()
+  call system(
+        \ 'tmux send-keys -t "' . g:runCommandTarget . '" "q" "^c" "^u" "^l" "Space" " ( ' . 
+        \ substitute(g:runCommand, '\v\%(:[^[:space:]]+)', '\=shellescape(expand(submatch(0)))', 'g') . 
+        \ ' ) " "Enter"'
+        \ )
+endfunction
+
+nnoremap <silent> <F5>      :w<CR>:call <SID>RunCommand()<CR>
+inoremap <silent> <F5> <Esc>:w<CR>:call <SID>RunCommand()<CR>a
+
 " Reload this file on save.
 augroup reloadLocalConfiguration
   au!

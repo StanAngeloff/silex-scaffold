@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<phpunit colors="true">
+  <testsuites>
+    <testsuite name="SilexScaffold">
+      <directory suffix="Test.php">src/</directory>
+    </testsuite>
+  </testsuites>
+  <filter>
+    <whitelist processUncoveredFilesFromWhitelist="true">
+      <directory>src/</directory>
+      <exclude>
+        <directory>src/Silex/Scaffold/Tests</directory>
+      </exclude>
+    </whitelist>
+  </filter>
+</phpunit>
