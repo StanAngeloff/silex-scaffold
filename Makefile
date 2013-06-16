@@ -1,11 +1,10 @@
-GIT_PATH    := .
 BIN_PATH    := bin
 VENDOR_PATH := vendor
 
 VAGRANT_MACHINE_NAME := master
 VAGRANT_MACHINE_FILE := .vagrant/machines/$(VAGRANT_MACHINE_NAME)/virtualbox/id
 
-.PHONY: default install-ruby-dependencies install-git-submodules vagrant-provision install clean
+.PHONY: default install-ruby-dependencies vagrant-provision install clean
 
 # Do nothing if `make` invoked with no arguments.
 default:
@@ -72,17 +71,6 @@ $(RUBY_GEMS):
 	@bundle install --path '$(VENDOR_PATH)' --binstubs '$(BIN_PATH)' 1>/dev/null
 	@/bin/echo 'OK'
 
-ifeq ($(wildcard $(GIT_PATH)/.gitmodules),)
-GIT_MODULES = $(GIT_PATH)/.git
-else
-GIT_MODULES = $(shell cat '$(GIT_PATH)/.gitmodules' | grep 'path' | cut -d'=' -f2 | tr -d ' ' | sort -u | sed -e 's/$$/\/.git/g')
-endif
-
-install-git-submodules: $(GIT_MODULES)
-$(GIT_MODULES):
-	@$(call required-dependency,git,Git,git-core)
-	@( cd '$(GIT_MODULES)' && git submodule update --init --recursive )
-
 # Set the expected NFS server binary name based on the operating system.
 ifeq ($(shell uname -s),Darwin)
 NFSD_SERVER := nfsd
@@ -91,7 +79,7 @@ NFSD_SERVER := rpc.nfsd
 endif
 
 # Bring up the virtual machine if it doesn't already exist.
-vagrant-provision: install-ruby-dependencies install-git-submodules $(VAGRANT_MACHINE_FILE)
+vagrant-provision: install-ruby-dependencies $(VAGRANT_MACHINE_FILE)
 $(VAGRANT_MACHINE_FILE):
 	@$(call required-dependency,bsdtar,BsdTar,bsdtar)
 	@/bin/echo 'Creating default VM set up... please be patient.'
