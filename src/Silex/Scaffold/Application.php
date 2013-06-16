@@ -8,6 +8,8 @@
 
 namespace Silex\Scaffold;
 
+use Silex\Scaffold\Application\Environment;
+
 use Silex\Application as BaseApplication;
 
 /**
@@ -23,16 +25,30 @@ class Application extends BaseApplication
     const PROPERTY_APP_NAME = 'app_name';
 
     /**
-     * The default application name when one was not provided by the User.
+     * The default application name.
      *
      * @var string
      */
     const DEFAULT_APP_NAME = 'scaffold_app';
 
-    /** {@inheritDoc} */
-    public function __construct(array $values = array(), $environment = null)
+    /**
+     * {@inheritDoc}
+     *
+     * @param string $env The application environment.
+     */
+    public function __construct(array $values = array(), $env = null)
     {
-        parent::__construct($values);
+        parent::__construct();
+
+        $this['env'] = new Environment(Environment::ENV_PRODUCTION);
+
+        # Apply overrides after setting up defaults above.
+        if (isset ($env)) {
+            $values = $values + compact('env');
+        }
+        foreach ($values as $key => $value) {
+            $this[$key] = $value;
+        }
     }
 
     # {{{ Getters/Setters

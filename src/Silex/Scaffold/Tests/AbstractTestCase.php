@@ -8,20 +8,20 @@
 
 namespace Silex\Scaffold\Tests;
 
-use Silex\Scaffold\Application;
-
 abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
 {
     /**
      * Create a \Silex\Scaffold\Application object for testing.
      *
+     * @param mixed ... The Application constructor arguments.
      * @return \Silex\Scaffold\Application
      *
      * @see http://silex.sensiolabs.org/doc/testing.html
      */
-    protected function createApplication()
+    protected function createApplication()/* ...$arguments */
     {
-        $app = new Application();
+        $reflect = new \ReflectionClass('\\Silex\\Scaffold\\Application');
+        $app = $reflect->newInstanceArgs(func_get_args());
 
         $app['debug'] = true;
         $app['exception_handler']->disable();
