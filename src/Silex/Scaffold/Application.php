@@ -22,14 +22,14 @@ class Application extends BaseApplication
      *
      * @var string
      */
-    const PROPERTY_APP_NAME = 'app_name';
+    private static $propertyAppName = 'app_name';
 
     /**
      * The default application name.
      *
      * @var string
      */
-    const DEFAULT_APP_NAME = 'scaffold_app';
+    private static $defaultAppName = 'scaffold_app';
 
     /**
      * {@inheritDoc}
@@ -60,10 +60,10 @@ class Application extends BaseApplication
      */
     public function getName()
     {
-        if (isset ($this[self::PROPERTY_APP_NAME])) {
-            return $this[self::PROPERTY_APP_NAME];
+        if (isset ($this[self::$propertyAppName])) {
+            return $this[self::$propertyAppName];
         }
-        return self::DEFAULT_APP_NAME;
+        return self::$defaultAppName;
     }
 
     /**
@@ -73,7 +73,7 @@ class Application extends BaseApplication
      */
     public function setName($appName)
     {
-        $this[self::PROPERTY_APP_NAME] = $appName;
+        $this[self::$propertyAppName] = $appName;
     }
 
     # }}}

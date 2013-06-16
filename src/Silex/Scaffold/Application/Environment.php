@@ -15,16 +15,16 @@ use Silex\Scaffold\Application;
  */
 final class Environment
 {
+    const ENV_PRODUCTION = 'prod';
+    const ENV_DEVELOPMENT = 'dev';
+    const ENV_TESTING = 'test';
+
     /**
      * The environment key template used to look up a customised value.
      *
      * @var string
      */
-    const ENV_KEY_TEMPLATE = '{app_name}_ENV';
-
-    const ENV_PRODUCTION = 'prod';
-    const ENV_DEVELOPMENT = 'dev';
-    const ENV_TESTING = 'test';
+    private static $envKeyTemplate = '{app_name}_ENV';
 
     /**
      * A list of development domains that would always trigger the 'dev' environment.
@@ -64,7 +64,7 @@ final class Environment
     public function __invoke(Application $app)
     {
         $envKey = strtr(
-            self::ENV_KEY_TEMPLATE,
+            self::$envKeyTemplate,
             array('{app_name}' => strtoupper($app->getName()))
         );
         # Look for CLI environment options.

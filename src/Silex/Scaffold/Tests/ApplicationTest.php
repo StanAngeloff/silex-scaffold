@@ -17,7 +17,7 @@ final class ApplicationTest extends AbstractTestCase
     {
         $app = $this->createApplication();
         $this->assertEquals(
-            Application::DEFAULT_APP_NAME,
+            'scaffold_app',
             $app->getName(),
             'expect a default app name to be set'
         );
