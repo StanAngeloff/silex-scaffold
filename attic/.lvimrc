@@ -10,6 +10,11 @@ let g:syntastic_php_checkers=['php', 'phpcs', 'phpmd']
 let g:syntastic_php_phpcs_args='--report=csv --encoding=utf-8 --standard=PSR2'
 let g:syntastic_php_phpmd_post_args='text codesize,design,naming,unusedcode'
 
+" Exclude VCS and (some) vendor files from Ctrl-P.
+let g:ctrlp_custom_ignore = {
+  \ 'dir': '[\/]\(\.\(git\|hg\|svn\|sass-cache\)\|\(vendor[\/]\(ruby\)\)\)$',
+  \ }
+
 " Reload this file on save.
 augroup reloadLocalConfiguration
   au!
