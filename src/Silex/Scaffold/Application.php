@@ -43,9 +43,7 @@ class Application extends BaseApplication
         $this['env'] = new Environment(Environment::ENV_PRODUCTION);
 
         # Apply overrides after setting up defaults above.
-        if (isset ($env)) {
-            $values = $values + compact('env');
-        }
+        $values = ($values + array_filter(compact('env')));
         foreach ($values as $key => $value) {
             $this[$key] = $value;
         }
