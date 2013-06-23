@@ -8,13 +8,13 @@
 
 namespace Silex\Scaffold\Provider;
 
+use Silex\Scaffold\Config\RoutingConfigLoader;
+
 use Silex\Scaffold\Exception\InvalidConfigurationException;
 use Silex\Scaffold\Exception\RuntimeException;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * This class provides routing support to Silex applications.
@@ -96,6 +96,7 @@ class RoutingProvider implements ServiceProviderInterface
         $routingFile = rtrim($this->routingPath, '\\/')
             . DIRECTORY_SEPARATOR
             . self::$routingFilename;
+        $loader = new RoutingConfigLoader();
         if (( ! is_file($routingFile))) {
             throw new RuntimeException(
                 strtr(
@@ -108,7 +109,7 @@ class RoutingProvider implements ServiceProviderInterface
                 1371973625
             );
         }
-        $config = Yaml::parse($routingFile);
+        $config = $loader->load($routingFile);
         return ($config ?: array());
     }
 
