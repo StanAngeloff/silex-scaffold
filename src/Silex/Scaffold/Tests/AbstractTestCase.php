@@ -8,7 +8,9 @@
 
 namespace Silex\Scaffold\Tests;
 
-abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
+use Silex\WebTestCase;
+
+abstract class AbstractTestCase extends WebTestCase
 {
     /**
      * Create a \Silex\Scaffold\Application object for testing.
@@ -19,7 +21,7 @@ abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
      *
      * @see http://silex.sensiolabs.org/doc/testing.html
      */
-    protected function createApplication(array $methods = null, array $arguments = null)
+    public function createApplication(array $methods = null, array $arguments = null)
     {
         $app = $this->getMock(
             '\\Silex\\Scaffold\\Application',

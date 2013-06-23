@@ -21,17 +21,16 @@ final class EnvironmentTest extends AbstractTestCase
         unset ($_SERVER['REDIRECT_SCAFFOLD_APP_ENV']);
         $_SERVER['HTTP_HOST'] = 'scaffold.app';
 
-        $app = $this->createApplication();
         $this->assertEquals(
             Environment::ENV_PRODUCTION,
-            $app['env'],
+            $this->app['env'],
             'expect the default environment to be production'
         );
 
         putenv('SCAFFOLD_APP_ENV=' . ($env = Environment::ENV_TESTING));
         $this->assertEquals(
             $env,
-            $app['env'],
+            $this->app['env'],
             'expect the environment to be loaded from $_ENV'
         );
         putenv('SCAFFOLD_APP_ENV=');
@@ -39,7 +38,7 @@ final class EnvironmentTest extends AbstractTestCase
         $_SERVER['SCAFFOLD_APP_ENV'] = $env;
         $this->assertEquals(
             $env,
-            $app['env'],
+            $this->app['env'],
             'expect the environment to be loaded from $_SERVER'
         );
         unset ($_SERVER['SCAFFOLD_APP_ENV']);
@@ -47,7 +46,7 @@ final class EnvironmentTest extends AbstractTestCase
         $_SERVER['REDIRECT_SCAFFOLD_APP_ENV'] = $env;
         $this->assertEquals(
             $env,
-            $app['env'],
+            $this->app['env'],
             'expect the environment to be loaded from $_SERVER when mod_rewrite is activated'
         );
         unset ($_SERVER['REDIRECT_SCAFFOLD_APP_ENV']);
@@ -55,11 +54,15 @@ final class EnvironmentTest extends AbstractTestCase
         $_SERVER['HTTP_HOST'] = 'hello.xip.io';
         $this->assertEquals(
             Environment::ENV_DEVELOPMENT,
-            $app['env'],
+            $this->app['env'],
             'expect the fallback environment on a xip.io domain to be development'
         );
+    }
 
-        $app = $this->createApplication(null, array(array(), ($env = Environment::ENV_TESTING)));
+    public function testEnvironmentFromConstructor()
+    {
+        $env = Environment::ENV_TESTING;
+        $app = $this->createApplication(null, array(array(), $env));
         $this->assertEquals(
             $env,
             $app['env'],
