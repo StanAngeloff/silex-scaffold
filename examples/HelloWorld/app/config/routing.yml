@@ -1,3 +1,4 @@
 index:
     pattern: /
     defaults: { _controller: HelloWorld:index }
+    arguments: ['@monolog']
