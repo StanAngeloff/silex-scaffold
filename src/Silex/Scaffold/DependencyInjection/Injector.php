@@ -55,6 +55,7 @@ class Injector
     /**
      * Create a new instance of the specified class.
      *
+     * @param string $klass
      * @param array $arguments The arguments to pass to the constructor.
      * @param array $calls The calls to invoke on the new instance.
      * @param array $properties The properties to set on the new instance.
@@ -99,6 +100,9 @@ class Injector
             foreach ($calls as $call) {
                 $this->addMethodCall($reflect, $instance, (array) $call);
             }
+            foreach ($properties as $property => $value) {
+                $this->addProperty($reflect, $instance, $property, $value);
+            }
         } catch (\Exception $previous) {
             throw new InjectorException(
                 strtr(
@@ -140,6 +144,31 @@ class Injector
             );
         }
         call_user_func_array(array($instance, $method), $arguments);
+    }
+
+    /**
+     * Set a property with the given value on the specified instance.
+     *
+     * @param \ReflectionClass $reflect
+     * @param object $instance
+     * @param string $property
+     * @param mixed $value
+     */
+    private function addProperty(\ReflectionClass $reflect, $instance, $property, $value)
+    {
+        if (( ! ($reflect->hasProperty($property)
+              || $reflect->hasMethod('__set')))) {
+            throw new InvalidArgumentException(
+                strtr(
+                    'The property "{property}" does not exist.',
+                    array(
+                        '{property}' => $property,
+                    )
+                ),
+                1371995679
+            );
+        }
+        $instance->$property = $value;
     }
 
     # {{{ Getters/Setters

@@ -24,10 +24,18 @@ class Injectee
      */
     private $calls;
 
+    /**
+     * The properties set on the class.
+     *
+     * @var array
+     */
+    private $properties;
+
     public function __construct()
     {
         $this->arguments = func_get_args();
         $this->calls = array();
+        $this->properties = array();
     }
 
     /**
@@ -41,7 +49,7 @@ class Injectee
     }
 
     /**
-     * Get the methods invoked on the class.
+     * Get the calls made on the class.
      *
      * @return array
      */
@@ -50,9 +58,25 @@ class Injectee
         return $this->calls;
     }
 
+    /**
+     * Get the properties set on the class.
+     *
+     * @return array
+     */
+    public function getProperties()
+    {
+        return $this->properties;
+    }
+
     /** {@inheritDoc} */
     public function __call($name, array $arguments)
     {
         $this->calls[] = array($name, $arguments);
+    }
+
+    /** {@inheritDoc} */
+    public function __set($name, $value)
+    {
+        $this->properties[$name] = $value;
     }
 }

@@ -10,6 +10,9 @@ namespace Silex\Scaffold\Tests\DependencyInjection;
 
 use Silex\Scaffold\DependencyInjection\Injector;
 
+/**
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ */
 final class InjectorTest extends \PHPUnit_Framework_TestCase
 {
     private static $injecteeClass = '\\Silex\\Scaffold\\Tests\\Fixtures\\Injectee';
@@ -169,18 +172,56 @@ final class InjectorTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testInjectorSetsProperties()
+    {
+        $instance = $this->newInjectorInstance(
+            /* $context = */ null,
+            /* $arguments = */ null,
+            /* $calls = */ array(),
+            /* $properties = */ $properties = array(
+                'key1' => 'value1',
+                'key2' => 'value2',
+            )
+        );
+
+        $this->assertEquals(
+            $properties,
+            $instance->getProperties(),
+            'expect Injector to set properties'
+        );
+    }
+
+    /**
+     * @expectedException \Silex\Scaffold\Exception\InjectorException
+     * @expectedExceptionCode 1371994399
+     */
+    public function testInjectorFailsWhenPropertyDoesNotExist()
+    {
+        $this->newInjector()->createInstance(
+            get_class($this),
+            /* $arguments = */ null,
+            /* $calls = */ array(),
+            /* $properties = */ array('nonExistingProperty')
+        );
+    }
+
     private function newInjector($context = null)
     {
         return Injector::create($context);
     }
 
-    private function newInjectorInstance($context = null, array $arguments = null, array $calls = null)
-    {
+    private function newInjectorInstance(
+        $context = null,
+        array $arguments = null,
+        array $calls = null,
+        array $properties = null
+    ) {
         return $this->newInjector($context)
             ->createInstance(
                 self::$injecteeClass,
                 $arguments,
-                $calls
+                $calls,
+                $properties
             );
     }
 }
