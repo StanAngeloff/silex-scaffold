@@ -61,6 +61,21 @@ final class RoutingProviderTest extends AbstractTestCase
             ->boot($this->createApplication());
     }
 
+    /**
+     * @expectedException \Silex\Scaffold\Exception\InvalidConfigurationException
+     * @expectedExceptionCode 1371982541
+     */
+    public function testRoutingFailsIfRouteControllerIsBroken()
+    {
+        $this->newRoutingProvider('30-broken_resource/')
+            ->boot($this->createApplication());
+    }
+
+    public function testRouting()
+    {
+        $this->newRoutingProvider('/')->boot($this->createApplication());
+    }
+
     private function newRoutingProvider($routingPath = null)
     {
         return new RoutingProvider(

@@ -12,6 +12,7 @@ use Silex\Scaffold\Application\Environment;
 use Silex\Scaffold\Provider\RoutingProvider;
 
 use Silex\Application as BaseApplication;
+use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\ServiceProviderInterface;
 
 /**
@@ -104,11 +105,26 @@ class Application extends BaseApplication
     public function boot()
     {
         if (( ! $this->booted)) {
+
+            # {{{ ServiceControllerServiceProvider
+
+            $this->register(
+                new ServiceControllerServiceProvider(),
+                /* $values = */ array(),
+                /* $singleton = */ true
+            );
+
+            # }}}
+
+            # {{{ RoutingProvider
+
             $this->register(
                 new RoutingProvider($this->getConfigurationPath()),
                 /* $values = */ array(),
                 /* $singleton = */ true
             );
+
+            # }}}
         }
         return parent::boot();
     }
