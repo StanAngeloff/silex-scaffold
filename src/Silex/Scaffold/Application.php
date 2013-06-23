@@ -126,7 +126,7 @@ class Application extends BaseApplication
                 new ConfigServiceProvider(
                     $this->getConfigurationPath(),
                     array(
-                        'root_dir' => $this->getRelativePath(),
+                        'root_dir' => $this->getApplicationPath(),
                     )
                 ),
                 /* $values = */ array(),
@@ -186,7 +186,7 @@ class Application extends BaseApplication
      */
     public function getConfigurationPath()
     {
-        return $this->getRelativePath(self::$configurationPath);
+        return ($this->getComponentPath('config') ?: $this->getApplicationPath(self::$configurationPath));
     }
 
     /**
@@ -196,7 +196,21 @@ class Application extends BaseApplication
      */
     public function getLogsPath()
     {
-        return $this->getRelativePath(self::$logsPath);
+        return ($this->getComponentPath('logs') ?: $this->getApplicationPath(self::$logsPath));
+    }
+
+    /**
+     * Get the path to a configured component.
+     *
+     * @param string $component
+     * @return string
+     */
+    private function getComponentPath($component)
+    {
+        return (isset ($this["{$component}.path"])
+            ? $this["{$component}.path"]
+            : null
+        );
     }
 
     /**
@@ -205,7 +219,7 @@ class Application extends BaseApplication
      * @param string $append
      * @return string
      */
-    private function getRelativePath($append = null)
+    private function getApplicationPath($append = null)
     {
         $reflect = new \ReflectionClass($this);
         return (pathinfo($reflect->getFileName(), PATHINFO_DIRNAME) . $append);
