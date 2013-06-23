@@ -32,6 +32,10 @@ abstract class AbstractTestCase extends WebTestCase
         $app['debug'] = true;
         $app['exception_handler']->disable();
 
+        foreach (array('config', 'logs') as $component) {
+            $app["{$component}.path"] = __DIR__ . "/Fixtures/{$component}/";
+        }
+
         return $app;
     }
 
