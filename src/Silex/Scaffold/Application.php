@@ -14,6 +14,7 @@ use Silex\Scaffold\Provider\RouteControllerFactoryProvider;
 use Silex\Scaffold\Provider\RoutingProvider;
 
 use Silex\Application as BaseApplication;
+use Silex\Provider\MonologServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\ServiceProviderInterface;
 
@@ -65,6 +66,10 @@ class Application extends BaseApplication
         $values = $values + array_filter(
             array(
                 'env' => $env,
+
+                'monolog.logfile' => function () {
+                    return $this->getMonologLogfile();
+                }
             )
         );
         foreach ($values as $key => $value) {
@@ -159,6 +164,17 @@ class Application extends BaseApplication
             );
 
             # }}}
+
+            # {{{ MonologServiceProvider
+
+            # Register the log handling facility.
+            $this->register(
+                new MonologServiceProvider(),
+                /* $values = */ array(),
+                /* $singleton = */ true
+            );
+
+            # }}}
         }
         return parent::boot();
     }
@@ -174,6 +190,16 @@ class Application extends BaseApplication
     }
 
     /**
+     * Get the path to the log files for this application.
+     *
+     * @return string
+     */
+    public function getLogsPath()
+    {
+        return $this->getRelativePath(self::$logsPath);
+    }
+
+    /**
      * Get a relative path from the application file.
      *
      * @param string $append
@@ -183,6 +209,18 @@ class Application extends BaseApplication
     {
         $reflect = new \ReflectionClass($this);
         return (pathinfo($reflect->getFileName(), PATHINFO_DIRNAME) . $append);
+    }
+
+    /**
+     * Get the default path to the Monolog log file.
+     *
+     * @return string
+     */
+    public function getMonologLogfile()
+    {
+        return rtrim($this->getLogsPath(), '\\/')
+            . DIRECTORY_SEPARATOR
+            . $this['env'] . '.log';
     }
 
     /**
