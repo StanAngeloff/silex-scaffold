@@ -138,6 +138,37 @@ final class InjectorTest extends \PHPUnit_Framework_TestCase
         $this->newInjectorInstance(array(), array('@service'));
     }
 
+    public function testInjectorCallsMethods()
+    {
+        $instance = $this->newInjectorInstance(
+            /* $context = */ null,
+            /* $arguments = */ null,
+            /* $calls = */ array(
+                $value1 = array('setKey1', array('value1')),
+                $value2 = array('setKey2', array('value2'))
+            )
+        );
+
+        $this->assertEquals(
+            array($value1, $value2),
+            $instance->getCalls(),
+            'expect Injector to call methods'
+        );
+    }
+
+    /**
+     * @expectedException \Silex\Scaffold\Exception\InjectorException
+     * @expectedExceptionCode 1371994399
+     */
+    public function testInjectorFailsWhenMethodDoesNotExist()
+    {
+        $this->newInjector()->createInstance(
+            get_class($this),
+            /* $arguments = */ null,
+            /* $calls = */ array('nonExistingMethod')
+        );
+    }
+
     private function newInjector($context = null)
     {
         return Injector::create($context);

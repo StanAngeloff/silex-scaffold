@@ -40,6 +40,16 @@ class Injectee
         return $this->arguments;
     }
 
+    /**
+     * Get the methods invoked on the class.
+     *
+     * @return array
+     */
+    public function getCalls()
+    {
+        return $this->calls;
+    }
+
     /** {@inheritDoc} */
     public function __call($name, array $arguments)
     {

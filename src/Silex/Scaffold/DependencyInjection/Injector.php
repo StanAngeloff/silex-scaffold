@@ -84,12 +84,20 @@ class Injector
             );
         }
 
+        $instance = null;
         try {
             $targets = array(&$arguments, &$calls, &$properties);
             foreach ($targets as &$target) {
                 $target = (array) $target;
                 $this->replaceParameters($target);
                 $this->replaceServices($target);
+            }
+
+            $reflect = new \ReflectionClass($klass);
+            $instance = $reflect->newInstanceArgs($arguments);
+
+            foreach ($calls as $call) {
+                $this->addMethodCall($reflect, $instance, (array) $call);
             }
         } catch (\Exception $previous) {
             throw new InjectorException(
@@ -99,15 +107,39 @@ class Injector
                         '{class}' => $klass,
                     )
                 ),
-                1371994399
+                1371994399,
+                $previous
             );
         }
 
-        $reflect = new \ReflectionClass($klass);
-        $instance = $reflect->newInstanceArgs($arguments);
         return $instance;
+    }
 
-        $calls; // unused
+    /**
+     * Invoke the given method on the specified instance.
+     *
+     * @param \ReflectionClass $reflect
+     * @param object $instance
+     * @param array $call
+     */
+    private function addMethodCall(\ReflectionClass $reflect, $instance, array $options)
+    {
+        reset($options);
+        $method = current($options);
+        $arguments = (array) next($options);
+        if (( ! ($reflect->hasMethod($method)
+              || $reflect->hasMethod('__call')))) {
+            throw new InvalidArgumentException(
+                strtr(
+                    'The method "{method}" does not exist.',
+                    array(
+                        '{method}' => $method,
+                    )
+                ),
+                1371995679
+            );
+        }
+        call_user_func_array(array($instance, $method), $arguments);
     }
 
     # {{{ Getters/Setters
