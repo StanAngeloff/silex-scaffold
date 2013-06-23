@@ -28,4 +28,25 @@ abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
 
         return $app;
     }
+
+    /**
+     * Get a mock object for an interface.
+     *
+     * @param string $interfaceName
+     * @return object
+     */
+    protected function getMockForInterface($interfaceName)
+    {
+        $reflect = new \ReflectionClass($interfaceName);
+        $instance = $this->getMockBuilder($reflect->getName())
+            ->setMethods(
+                array_map(
+                    function (\ReflectionMethod $method) {
+                        return $method->getName();
+                    },
+                    $reflect->getMethods()
+                )
+            );
+        return $instance->getMock();
+    }
 }

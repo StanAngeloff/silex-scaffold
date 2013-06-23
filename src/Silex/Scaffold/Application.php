@@ -11,6 +11,7 @@ namespace Silex\Scaffold;
 use Silex\Scaffold\Application\Environment;
 
 use Silex\Application as BaseApplication;
+use Silex\ServiceProviderInterface;
 
 /**
  * The Silex Scaffold application.
@@ -78,5 +79,35 @@ class Application extends BaseApplication
         $this[self::$propertyAppName] = $appName;
     }
 
+    /**
+     * Get the providers registered with this Application object.
+     *
+     * @return \Silex\ServiceProviderInterface[]
+     */
+    public function getProviders()
+    {
+        return $this->providers;
+    }
+
     # }}}
+    /**
+     * Registers a service provider.
+     *
+     * @param ServiceProviderInterface $provider A ServiceProviderInterface instance.
+     * @param array $values An array of values that customizes the provider.
+     * @param bool $singleton A flag indicating whether only one instance of the provider should be registered.
+     *
+     * @return Application
+     */
+    public function register(ServiceProviderInterface $provider, array $values = array(), $singleton = false)
+    {
+        if ($singleton) {
+            foreach ($this->providers as $existing) {
+                if ($existing instanceof $provider) {
+                    return $this;
+                }
+            }
+        }
+        return parent::register($provider, $values);
+    }
 }
