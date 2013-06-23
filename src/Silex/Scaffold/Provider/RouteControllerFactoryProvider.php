@@ -72,7 +72,7 @@ class RouteControllerFactoryProvider implements ServiceProviderInterface
 
         $controllerKey = str_replace('/', '.', strtolower($controllerName) . '.controller');
         $app[$controllerKey] = $app->share(
-            function (Application $app) use ($controllerName) {
+            function (Application $app) use (&$route, $controllerName) {
                 $controllerClass = strtr(
                     self::$controllerClassTemplate,
                     array(
@@ -80,7 +80,13 @@ class RouteControllerFactoryProvider implements ServiceProviderInterface
                         '{controller}' => str_replace('/', '\\', $controllerName),
                     )
                 );
-                return Injector::create($app)->createInstance($controllerClass);
+                $accessor = $this->getPropertyAccessor();
+                return Injector::create($app)->createInstance(
+                    $controllerClass,
+                    $accessor->getValue($route, '[arguments]'),
+                    $accessor->getValue($route, '[calls]'),
+                    $accessor->getValue($route, '[properties]')
+                );
             }
         );
 
