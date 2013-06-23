@@ -9,6 +9,7 @@
 namespace Silex\Scaffold;
 
 use Silex\Scaffold\Application\Environment;
+use Silex\Scaffold\Provider\ConfigServiceProvider;
 use Silex\Scaffold\Provider\RouteControllerFactoryProvider;
 use Silex\Scaffold\Provider\RoutingProvider;
 
@@ -40,7 +41,14 @@ class Application extends BaseApplication
      *
      * @var string
      */
-    private static $pathToConfiguration = '/../app/config';
+    private static $configurationPath = '/../app/config';
+
+    /**
+     * The relative path from an Application class to the logs directory.
+     *
+     * @var string
+     */
+    private static $logsPath = '/../app/logs';
 
     /**
      * {@inheritDoc}
@@ -107,6 +115,21 @@ class Application extends BaseApplication
     {
         if (( ! $this->booted)) {
 
+            # {{{ ConfigServiceProvider
+
+            $this->register(
+                new ConfigServiceProvider(
+                    $this->getConfigurationPath(),
+                    array(
+                        'root_dir' => $this->getRelativePath(),
+                    )
+                ),
+                /* $values = */ array(),
+                /* $singleton = */ true
+            );
+
+            # }}}
+
             # {{{ ServiceControllerServiceProvider
 
             $this->register(
@@ -147,8 +170,19 @@ class Application extends BaseApplication
      */
     public function getConfigurationPath()
     {
+        return $this->getRelativePath(self::$configurationPath);
+    }
+
+    /**
+     * Get a relative path from the application file.
+     *
+     * @param string $append
+     * @return string
+     */
+    private function getRelativePath($append = null)
+    {
         $reflect = new \ReflectionClass($this);
-        return (pathinfo($reflect->getFileName(), PATHINFO_DIRNAME) . self::$pathToConfiguration);
+        return (pathinfo($reflect->getFileName(), PATHINFO_DIRNAME) . $append);
     }
 
     /**
