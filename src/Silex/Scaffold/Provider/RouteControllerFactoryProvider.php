@@ -8,7 +8,9 @@
 
 namespace Silex\Scaffold\Provider;
 
+use Silex\Scaffold\DependencyInjection\Injector;
 use Silex\Scaffold\Exception\InvalidArgumentException;
+use Silex\Scaffold\Utility\ReflectionUtility;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -74,11 +76,11 @@ class RouteControllerFactoryProvider implements ServiceProviderInterface
                 $controllerClass = strtr(
                     self::$controllerClassTemplate,
                     array(
-                        '{namespace}' => $this->getAppNamespace($app),
+                        '{namespace}' => ReflectionUtility::getNamespace($app),
                         '{controller}' => str_replace('/', '\\', $controllerName),
                     )
                 );
-                return new $controllerClass();
+                return Injector::create($app)->createInstance($controllerClass);
             }
         );
 
@@ -132,29 +134,6 @@ class RouteControllerFactoryProvider implements ServiceProviderInterface
             }
         }
     }
-
-    /**
-     * Grab the application namespace.
-     *
-     * When we are using mock objects, we need to look up the inheritance tree
-     * until we find a valid namespace.
-     *
-     * @param Application $app
-     * @return string
-     */
-    private function getAppNamespace(Application $app)
-    {
-        $reflect = new \ReflectionClass($app);
-        while ($reflect) {
-            $namespaceName = $reflect->getNamespaceName();
-            if ($namespaceName) {
-                return $namespaceName;
-            }
-            $reflect = $reflect->getParentClass();
-        }
-        // @codeCoverageIgnoreStart
-    }
-    // @codeCoverageIgnoreEnd
 
     /**
      * Get the configured HTTP methods for a route.
