@@ -1,3 +1,8 @@
+set tabstop=4      " Default number of spaces per tab character.
+set softtabstop=4  " Tab size during editing operation.
+set shiftwidth=4   " Default tab size.
+set noexpandtab
+
 " Set up Syntastic to lint files on save.
 let g:syntastic_mode_map={ 'mode': 'active', 'active_filetypes': ['javascript', 'json', 'php'], 'passive_filetypes': [] }
 
