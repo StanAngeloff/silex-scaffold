@@ -9,12 +9,14 @@
 namespace Silex\Scaffold\Provider;
 
 use Silex\Scaffold\Config\RoutingConfigLoader;
-
+use Silex\Scaffold\Exception\InvalidArgumentException;
 use Silex\Scaffold\Exception\InvalidConfigurationException;
 use Silex\Scaffold\Exception\RuntimeException;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
+
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
  * This class provides routing support to Silex applications.
@@ -34,6 +36,13 @@ class RoutingProvider implements ServiceProviderInterface
      * @var string
      */
     private $routingPath;
+
+    /**
+     * A cached instance of a PropertyAccessor.
+     *
+     * @var \Symfony\Component\PropertyAccess\PropertyAccessor
+     */
+    private $accessor;
 
     /**
      * Initialize a new RoutingProvider instance.
@@ -80,17 +89,39 @@ class RoutingProvider implements ServiceProviderInterface
         $app; // unused
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * @throws InvalidConfigurationException
+     */
     public function boot(Application $app)
     {
         $config = $this->getRoutingConfig();
         foreach ($config as $routeName => $routeOptions) {
-            $this->ensureRouteOptions($routeOptions);
+            try {
+                $this->ensureRouteOptions($routeOptions);
+            } catch (\Exception $previous) {
+                throw new InvalidConfigurationException(
+                    strtr(
+                        'Cannot process routing options for route "{route}" .',
+                        array('{route}' => $routeName)
+                    ),
+                    1371982541,
+                    $previous
+                );
+            }
         }
     }
 
     # }}}
 
+    /**
+     * Get the routing configuration as an array.
+     *
+     * @return array
+     *
+     * @throws RuntimeException
+     */
     private function getRoutingConfig()
     {
         $routingFile = rtrim($this->routingPath, '\\/')
@@ -113,13 +144,46 @@ class RoutingProvider implements ServiceProviderInterface
         return ($config ?: array());
     }
 
+    /**
+     * Get an instance of a PropertyAccessor.
+     *
+     * @return \Symfony\Component\PropertyAccess\PropertyAccessor
+     */
+    private function getPropertyAccessor()
+    {
+        if ($this->accessor === null) {
+            $this->accessor = PropertyAccess::createPropertyAccessor();
+        }
+        return $this->accessor;
+    }
+
+    /**
+     * Ensure the routing opting are properly configured.
+     *
+     * @return void
+     *
+     * @throws InvalidArgumentException
+     */
     private function ensureRouteOptions($routeOptions)
     {
         if (( ! is_array($routeOptions))) {
-            throw new InvalidConfigurationException(
+            throw new InvalidArgumentException(
                 'The route options must be an array.',
                 1371973949
             );
+        }
+        $accessor = $this->getPropertyAccessor();
+        foreach (array('[pattern]', '[defaults][_controller]') as $property) {
+            $value = $accessor->getValue($routeOptions, $property);
+            if ($value === null) {
+                throw new InvalidArgumentException(
+                    strtr(
+                        'The route options must define property "{property}".',
+                        array('{property}' => $property)
+                    ),
+                    1371982396
+                );
+            }
         }
     }
 }

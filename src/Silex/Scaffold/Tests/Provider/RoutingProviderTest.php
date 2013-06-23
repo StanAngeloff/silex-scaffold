@@ -43,11 +43,21 @@ final class RoutingProviderTest extends AbstractTestCase
 
     /**
      * @expectedException \Silex\Scaffold\Exception\InvalidConfigurationException
-     * @expectedExceptionCode 1371973949
+     * @expectedExceptionCode 1371982541
      */
     public function testRoutingFailsIfRouteOptionsIsNotAnArray()
     {
         $this->newRoutingProvider('10-not_an_array/')
+            ->boot($this->createApplication());
+    }
+
+    /**
+     * @expectedException \Silex\Scaffold\Exception\InvalidConfigurationException
+     * @expectedExceptionCode 1371982541
+     */
+    public function testRoutingFailsIfRouteOptionsIsMissingRequiredProperties()
+    {
+        $this->newRoutingProvider('20-missing_properties/')
             ->boot($this->createApplication());
     }
 
