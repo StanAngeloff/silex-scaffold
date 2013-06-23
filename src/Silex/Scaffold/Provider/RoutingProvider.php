@@ -63,12 +63,11 @@ class RoutingProvider implements ServiceProviderInterface
      * Set the absolute path to the configuration directory.
      *
      * @param string $routingPath
-     * @return self
+     * @return void
      */
     public function setRoutingPath($routingPath)
     {
         $this->routingPath = $routingPath;
-        return $this;
     }
 
     # }}}

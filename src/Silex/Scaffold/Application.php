@@ -81,6 +81,7 @@ class Application extends BaseApplication
      * Set the application name.
      *
      * @param string $appName
+     * @return void
      */
     public function setName($appName)
     {
@@ -130,7 +131,7 @@ class Application extends BaseApplication
      * @param array $values An array of values that customizes the provider.
      * @param bool $singleton A flag indicating whether only one instance of the provider should be registered.
      *
-     * @return Application
+     * @return self
      */
     public function register(ServiceProviderInterface $provider, array $values = array(), $singleton = false)
     {
