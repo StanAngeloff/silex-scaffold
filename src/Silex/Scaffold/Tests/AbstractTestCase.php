@@ -13,15 +13,19 @@ abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
     /**
      * Create a \Silex\Scaffold\Application object for testing.
      *
-     * @param mixed ... The Application constructor arguments.
+     * @param array $methods The method names to mock.
+     * @param array $arguments The arguments to the Application constructor.
      * @return \Silex\Scaffold\Application
      *
      * @see http://silex.sensiolabs.org/doc/testing.html
      */
-    protected function createApplication()/* ...$arguments */
+    protected function createApplication(array $methods = null, array $arguments = null)
     {
-        $reflect = new \ReflectionClass('\\Silex\\Scaffold\\Application');
-        $app = $reflect->newInstanceArgs(func_get_args());
+        $app = $this->getMock(
+            '\\Silex\\Scaffold\\Application',
+            $methods,
+            (array) $arguments
+        );
 
         $app['debug'] = true;
         $app['exception_handler']->disable();

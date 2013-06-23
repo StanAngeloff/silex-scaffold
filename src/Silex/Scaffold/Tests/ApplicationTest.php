@@ -25,6 +25,45 @@ final class ApplicationTest extends AbstractTestCase
         $this->assertEquals($appName, $app->getName(), 'expect the app name to be changed');
     }
 
+    public function testConfigurationPath()
+    {
+        $app = $this->createApplication();
+        $this->assertStringEndsWith(
+            '../app/config',
+            $app->getConfigurationPath(),
+            'expect default configuration path to be relative to the Application class'
+        );
+    }
+
+    public function testBoot()
+    {
+        $app = $this->createApplication(
+            array('getConfigurationPath')
+        );
+
+        $this->assertEquals(
+            array(),
+            $app->getProviders(),
+            'expect no providers before application is booted'
+        );
+
+        $app->expects($this->once())
+            ->method('getConfigurationPath')
+            ->will(
+                $this->returnValue(
+                    __DIR__ . '/Fixtures/config'
+                )
+            );
+
+        $app->boot();
+
+        $this->assertGreaterThan(
+            0,
+            sizeof($app->getProviders()),
+            'expect at least one provider to be registered after application boot'
+        );
+    }
+
     public function testRegisterSingleton()
     {
         $app = $this->createApplication();

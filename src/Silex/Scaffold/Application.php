@@ -9,6 +9,7 @@
 namespace Silex\Scaffold;
 
 use Silex\Scaffold\Application\Environment;
+use Silex\Scaffold\Provider\RoutingProvider;
 
 use Silex\Application as BaseApplication;
 use Silex\ServiceProviderInterface;
@@ -31,6 +32,13 @@ class Application extends BaseApplication
      * @var string
      */
     private static $defaultAppName = 'scaffold_app';
+
+    /**
+     * The relative path from an Application class to the configuration directory.
+     *
+     * @var string
+     */
+    private static $pathToConfiguration = '/../app/config';
 
     /**
      * {@inheritDoc}
@@ -90,6 +98,31 @@ class Application extends BaseApplication
     }
 
     # }}}
+
+    /** {@inheritDoc} */
+    public function boot()
+    {
+        if (( ! $this->booted)) {
+            $this->register(
+                new RoutingProvider($this->getConfigurationPath()),
+                /* $values = */ array(),
+                /* $singleton = */ true
+            );
+        }
+        return parent::boot();
+    }
+
+    /**
+     * Get the path to the configuration files for this application.
+     *
+     * @return string
+     */
+    public function getConfigurationPath()
+    {
+        $reflect = new \ReflectionClass($this);
+        return (pathinfo($reflect->getFileName(), PATHINFO_DIRNAME) . self::$pathToConfiguration);
+    }
+
     /**
      * Registers a service provider.
      *
