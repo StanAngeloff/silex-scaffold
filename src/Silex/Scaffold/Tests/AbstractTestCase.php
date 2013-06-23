@@ -24,7 +24,7 @@ abstract class AbstractTestCase extends WebTestCase
     public function createApplication(array $methods = null, array $arguments = null)
     {
         $app = $this->getMock(
-            '\\Silex\\Scaffold\\Application',
+            '\\Silex\\Scaffold\\Tests\\Fixtures\\Application',
             $methods,
             (array) $arguments
         );

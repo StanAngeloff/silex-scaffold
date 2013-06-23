@@ -45,35 +45,22 @@ final class RoutingProviderTest extends AbstractTestCase
      * @expectedException \Silex\Scaffold\Exception\InvalidConfigurationException
      * @expectedExceptionCode 1371982541
      */
-    public function testRoutingFailsIfRouteOptionsIsNotAnArray()
+    public function testRoutingWrapsFactoryExceptions()
     {
-        $this->newRoutingProvider('10-not_an_array/')
-            ->boot($this->createApplication());
-    }
+        $app = $this->createApplication();
 
-    /**
-     * @expectedException \Silex\Scaffold\Exception\InvalidConfigurationException
-     * @expectedExceptionCode 1371982541
-     */
-    public function testRoutingFailsIfRouteOptionsIsMissingRequiredProperties()
-    {
-        $this->newRoutingProvider('20-missing_properties/')
-            ->boot($this->createApplication());
-    }
+        $factoryMock = $this->getMock('\\Silex\\Scaffold\\Provider\\RouteControllerFactoryProvider');
+        $factoryMock->expects($this->once())
+            ->method('createController')
+            ->will(
+                $this->throwException(
+                    new \RuntimeException('message')
+                )
+            );
 
-    /**
-     * @expectedException \Silex\Scaffold\Exception\InvalidConfigurationException
-     * @expectedExceptionCode 1371982541
-     */
-    public function testRoutingFailsIfRouteControllerIsBroken()
-    {
-        $this->newRoutingProvider('30-broken_resource/')
-            ->boot($this->createApplication());
-    }
+        $app['route_controller_factory'] = $factoryMock;
 
-    public function testRouting()
-    {
-        $this->newRoutingProvider('/')->boot($this->createApplication());
+        $this->newRoutingProvider('/')->boot($app);
     }
 
     private function newRoutingProvider($routingPath = null)

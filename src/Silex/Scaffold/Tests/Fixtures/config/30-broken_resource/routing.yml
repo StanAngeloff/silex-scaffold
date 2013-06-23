@@ -1,3 +1,0 @@
-index:
-    pattern: /
-    defaults: { _controller: 'broken' }

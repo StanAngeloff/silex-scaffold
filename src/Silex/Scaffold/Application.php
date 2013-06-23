@@ -9,6 +9,7 @@
 namespace Silex\Scaffold;
 
 use Silex\Scaffold\Application\Environment;
+use Silex\Scaffold\Provider\RouteControllerFactoryProvider;
 use Silex\Scaffold\Provider\RoutingProvider;
 
 use Silex\Application as BaseApplication;
@@ -110,6 +111,16 @@ class Application extends BaseApplication
 
             $this->register(
                 new ServiceControllerServiceProvider(),
+                /* $values = */ array(),
+                /* $singleton = */ true
+            );
+
+            # }}}
+
+            # {{{ RouteControllerFactoryProvider
+
+            $this->register(
+                new RouteControllerFactoryProvider(),
                 /* $values = */ array(),
                 /* $singleton = */ true
             );

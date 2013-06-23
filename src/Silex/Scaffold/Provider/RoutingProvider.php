@@ -9,14 +9,11 @@
 namespace Silex\Scaffold\Provider;
 
 use Silex\Scaffold\Config\RoutingConfigLoader;
-use Silex\Scaffold\Exception\InvalidArgumentException;
 use Silex\Scaffold\Exception\InvalidConfigurationException;
 use Silex\Scaffold\Exception\RuntimeException;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-
-use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
  * This class provides routing support to Silex applications.
@@ -31,32 +28,11 @@ class RoutingProvider implements ServiceProviderInterface
     private static $routingFilename = 'routing.yml';
 
     /**
-     * The template used to create the controller class name from the route options.
-     *
-     * @var string
-     */
-    private static $controllerClassTemplate = '\\{namespace}\\Controller\\{controller}Controller';
-
-    /**
-     * The template for invoking a controller action using the ServiceControllerServiceProvider.
-     *
-     * @var string
-     */
-    private static $controllerActionTemplate = '{controller}:{action}Action';
-
-    /**
      * The absolute path to the configuration directory.
      *
      * @var string
      */
     private $routingPath;
-
-    /**
-     * A cached instance of a PropertyAccessor.
-     *
-     * @var \Symfony\Component\PropertyAccess\PropertyAccessor
-     */
-    private $accessor;
 
     /**
      * Initialize a new RoutingProvider instance.
@@ -111,10 +87,9 @@ class RoutingProvider implements ServiceProviderInterface
     public function boot(Application $app)
     {
         $config = $this->getRoutingConfig();
-        foreach ($config as $routeName => $routeOptions) {
+        foreach ($config as $routeName => $route) {
             try {
-                $this->ensureRouteOptions($routeOptions);
-                $controller = $this->applyRoute($app, $routeOptions);
+                $controller = $app['route_controller_factory']->createController($app, $route);
             } catch (\Exception $previous) {
                 throw new InvalidConfigurationException(
                     strtr(
@@ -130,89 +105,6 @@ class RoutingProvider implements ServiceProviderInterface
     }
 
     # }}}
-
-    /**
-     * Apply the route to the Silex application.
-     *
-     * @param Application $app
-     * @param array $route
-     *
-     * @return void
-     */
-    private function applyRoute(Application $app, array $route)
-    {
-        list ($controllerName, $actionName) = $this->splitControllerAction($route['defaults']['_controller']);
-
-        $controllerKey = str_replace('/', '.', strtolower($controllerName) . '.controller');
-        $app[$controllerKey] = $app->share(
-            function (Application $app) use ($controllerName) {
-                $reflect = new \ReflectionClass($app);
-                $controllerClass = strtr(
-                    self::$controllerClassTemplate,
-                    array(
-                        '{namespace}' => $reflect->getNamespaceName(),
-                        '{controller}' => str_replace('/', '\\', $controllerName),
-                    )
-                );
-                return new $controllerClass();
-            }
-        );
-
-        $methods = $this->getRouteMethods($route);
-        $firstController = null;
-        foreach ($methods as $method) {
-            $controller = $app->$method(
-                $route['pattern'],
-                strtr(
-                    self::$controllerActionTemplate,
-                    array(
-                        '{controller}' => $controllerKey,
-                        '{action}' => $actionName,
-                    )
-                )
-            );
-            if ($firstController === null) {
-                $firstController = $controller;
-            }
-        }
-
-        return $firstController;
-    }
-
-    /**
-     * Get the configured HTTP methods for a route.
-     *
-     * @param array $route
-     * @return string[]
-     */
-    private function getRouteMethods(array $route)
-    {
-        if (isset ($route['methods'])) {
-            return (array) $route['methods'];
-        } elseif (isset ($route['defaults']['_method'])) {
-            return (array) $route['defaults']['_method'];
-        }
-        return array('match');
-    }
-
-    /**
-     * Get the controller and action name from a resource.
-     *
-     * @param string $resource
-     * @return string[]
-     *
-     * @throws InvalidArgumentException
-     */
-    private function splitControllerAction($resource)
-    {
-        if (strpos($resource, ':') === false) {
-            throw new InvalidArgumentException(
-                'The controller resource must be in the format "Controller:action".',
-                1371983353
-            );
-        }
-        return explode(':', $resource, 2);
-    }
 
     /**
      * Get the routing configuration as an array.
@@ -241,48 +133,5 @@ class RoutingProvider implements ServiceProviderInterface
         }
         $config = $loader->load($routingFile);
         return ($config ?: array());
-    }
-
-    /**
-     * Get an instance of a PropertyAccessor.
-     *
-     * @return \Symfony\Component\PropertyAccess\PropertyAccessor
-     */
-    private function getPropertyAccessor()
-    {
-        if ($this->accessor === null) {
-            $this->accessor = PropertyAccess::createPropertyAccessor();
-        }
-        return $this->accessor;
-    }
-
-    /**
-     * Ensure the routing opting are properly configured.
-     *
-     * @return void
-     *
-     * @throws InvalidArgumentException
-     */
-    private function ensureRouteOptions($routeOptions)
-    {
-        if (( ! is_array($routeOptions))) {
-            throw new InvalidArgumentException(
-                'The route options must be an array.',
-                1371973949
-            );
-        }
-        $accessor = $this->getPropertyAccessor();
-        foreach (array('[pattern]', '[defaults][_controller]') as $property) {
-            $value = $accessor->getValue($routeOptions, $property);
-            if ($value === null) {
-                throw new InvalidArgumentException(
-                    strtr(
-                        'The route options must define property "{property}".',
-                        array('{property}' => $property)
-                    ),
-                    1371982396
-                );
-            }
-        }
     }
 }
