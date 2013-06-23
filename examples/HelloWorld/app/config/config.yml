@@ -1,2 +1,2 @@
 imports:
-  - { resource: config.%env%.yml }
+  - { resource: config_%env%.yml }
